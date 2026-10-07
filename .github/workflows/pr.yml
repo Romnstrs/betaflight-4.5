@@ -5,6 +5,7 @@ on:
     branches:
       - master
       - '*-maintenance'
+      - '4.5.4-pitot'
 
 jobs:
   ci:
