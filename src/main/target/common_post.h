@@ -186,6 +186,19 @@
 #endif
 #endif
 
+// Pitot (airspeed) sensor: USE_PITOT pulls in the MS4525 I2C driver, the only
+// backend in 4.5, and USE_PITOT_MS4525 alone enables USE_PITOT. Both need I2C.
+#if defined(USE_PITOT) && !defined(USE_PITOT_MS4525)
+#define USE_PITOT_MS4525
+#endif
+#if defined(USE_PITOT_MS4525) && !defined(USE_PITOT)
+#define USE_PITOT
+#endif
+#if !defined(USE_I2C)
+#undef USE_PITOT
+#undef USE_PITOT_MS4525
+#endif
+
 // Add VARIO if BARO or GPS is defined. Remove when none defined.
 #if defined(USE_BARO) || defined(USE_GPS)
 #ifndef USE_VARIO

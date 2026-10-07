@@ -180,6 +180,8 @@ COMMON_SRC = \
             osd/osd_elements.c \
             osd/osd_warnings.c \
             sensors/barometer.c \
+            sensors/pitot.c \
+            drivers/pitot/pitot_ms4525.c \
             sensors/rangefinder.c \
             telemetry/telemetry.c \
             telemetry/crsf.c \

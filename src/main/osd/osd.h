@@ -189,6 +189,9 @@ typedef enum {
     OSD_GPS_LAP_TIME_CURRENT,
     OSD_GPS_LAP_TIME_PREVIOUS,
     OSD_GPS_LAP_TIME_BEST3,
+#ifdef USE_PITOT
+    OSD_AIRSPEED,               // indicated airspeed from the pitot sensor
+#endif
     OSD_ITEM_COUNT // MUST BE LAST
 } osd_items_e;
 
@@ -235,6 +238,7 @@ typedef enum {
     OSD_STAT_FULL_THROTTLE_TIME,
     OSD_STAT_FULL_THROTTLE_COUNTER,
     OSD_STAT_AVG_THROTTLE,
+    OSD_STAT_MAX_AIRSPEED,
     OSD_STAT_COUNT // MUST BE LAST
 } osd_stats_e;
 
@@ -368,6 +372,7 @@ PG_DECLARE(osdElementConfig_t, osdElementConfig);
 typedef struct statistic_s {
     timeUs_t armed_time;
     int16_t max_speed;
+    int16_t max_airspeed;     // cm/s, indicated (or true, per pitot_use_tas)
     int16_t min_voltage; // /100
     uint16_t end_voltage;
     int16_t max_current; // /10
