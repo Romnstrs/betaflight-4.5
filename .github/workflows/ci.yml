@@ -47,6 +47,8 @@ jobs:
     strategy:
       matrix:
         target: ${{ fromJson(needs.setup.outputs.targets) }}
+        # '' is the stock build; USE_PITOT also compiles the pitot/airspeed sensor
+        options: ['', 'USE_PITOT']
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -64,11 +66,11 @@ jobs:
 
       - name: Build target (without revision)
         if: inputs.release_build == true
-        run: make EXTRA_FLAGS=-Werror ${{ matrix.target }}
+        run: make EXTRA_FLAGS=-Werror OPTIONS="${{ matrix.options }}" ${{ matrix.target }}
 
       - name: Build target (with revision)
         if: inputs.release_build == false
-        run: make EXTRA_FLAGS=-Werror ${{ matrix.target }}_rev
+        run: make EXTRA_FLAGS=-Werror OPTIONS="${{ matrix.options }}" ${{ matrix.target }}_rev
 
       - name: Publish build artifacts
         uses: actions/upload-artifact@v4
