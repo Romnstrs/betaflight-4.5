@@ -45,8 +45,16 @@
 #include "sensors/pitot.h"
 #include "sensors/sensors.h"
 
+// Board configs rarely set I2C_DEVICE, so default to the bus the baro or mag
+// uses, which is normally the one broken out on the external I2C pads.
 #ifndef PITOT_I2C_INSTANCE
+#if defined(BARO_I2C_INSTANCE)
+#define PITOT_I2C_INSTANCE BARO_I2C_INSTANCE
+#elif defined(MAG_I2C_INSTANCE)
+#define PITOT_I2C_INSTANCE MAG_I2C_INSTANCE
+#else
 #define PITOT_I2C_INSTANCE I2C_DEVICE
+#endif
 #endif
 
 #define PITOT_CALIBRATION_SAMPLES TASK_PITOT_RATE_HZ  // ~1 s of at-rest samples
