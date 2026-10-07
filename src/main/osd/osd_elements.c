@@ -167,6 +167,7 @@
 
 #include "sensors/adcinternal.h"
 #include "sensors/barometer.h"
+#include "sensors/pitot.h"
 #include "sensors/battery.h"
 #include "sensors/sensors.h"
 
@@ -1072,6 +1073,20 @@ static void osdElementGForce(osdElementParms_t *element)
     osdPrintFloat(element->buff, SYM_NONE, osdGForce, "", 1, true, 'G');
 }
 #endif // USE_ACC
+
+#ifdef USE_PITOT
+static void osdElementAirspeed(osdElementParms_t *element)
+{
+    const char *label = pitotConfig()->pitot_use_tas ? "TAS" : "AS";
+    if (sensors(SENSOR_PITOT) && pitotIsCalibrated()) {
+        // Negative readings are reverse flow or noise around zero; show them as 0.
+        const int32_t airspeedCmS = MAX(lrintf(pitotGetAirspeed()), 0);
+        tfp_sprintf(element->buff, "%s%3d%c", label, osdGetSpeedToSelectedUnit(airspeedCmS), osdGetSpeedToSelectedUnitSymbol());
+    } else {
+        tfp_sprintf(element->buff, "%s%c%c", label, SYM_HYPHEN, osdGetSpeedToSelectedUnitSymbol());
+    }
+}
+#endif
 
 #ifdef USE_GPS
 static void osdElementGpsFlightDistance(osdElementParms_t *element)
@@ -1986,6 +2001,9 @@ const osdElementDrawFn osdElementDrawFunction[OSD_ITEM_COUNT] = {
     [OSD_GPS_LAP_TIME_PREVIOUS]   = osdElementGpsLapTimePrevious,
     [OSD_GPS_LAP_TIME_BEST3]      = osdElementGpsLapTimeBest3,
 #endif // GPS_LAP_TIMER
+#ifdef USE_PITOT
+    [OSD_AIRSPEED]                = osdElementAirspeed,
+#endif
 #ifdef USE_PERSISTENT_STATS
     [OSD_TOTAL_FLIGHTS]           = osdElementTotalFlights,
 #endif
@@ -2057,6 +2075,14 @@ void osdAddActiveElements(void)
         osdAddActiveElement(OSD_EFFICIENCY);
     }
 #endif // GPS
+
+#ifdef USE_PITOT
+    // Gated on configuration, not SENSOR_PITOT: the sensor is only flagged once
+    // its first sample arrives, after this list has been built.
+    if (pitotIsConfigured()) {
+        osdAddActiveElement(OSD_AIRSPEED);
+    }
+#endif
 
 #if defined(USE_DSHOT_TELEMETRY) || defined(USE_ESC_SENSOR)
     if ((featureIsEnabled(FEATURE_ESC_SENSOR)) || useDshotTelemetry) {

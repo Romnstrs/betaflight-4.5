@@ -167,6 +167,7 @@ bool cliMode = false;
 #include "sensors/compass.h"
 #include "sensors/gyro.h"
 #include "sensors/gyro_init.h"
+#include "sensors/pitot.h"
 #include "sensors/sensors.h"
 
 #include "telemetry/frsky_hub.h"
@@ -4728,6 +4729,12 @@ static void cliStatus(const char *cmdName, char *cmdline)
 #endif
         }
     }
+#if defined(USE_PITOT)
+    // SENSOR_PITOT sits outside SENSOR_NAMES_MASK (its bit has no detectedSensors slot)
+    if (detectedSensorsMask & SENSOR_PITOT) {
+        cliPrintf(", PITOT=%s", lookupTablePitotHardware[pitotGetActiveSource()]);
+    }
+#endif
     cliPrintLinefeed();
 #endif /* USE_SENSOR_NAMES */
 

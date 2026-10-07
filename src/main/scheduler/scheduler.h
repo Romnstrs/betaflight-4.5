@@ -128,6 +128,9 @@ typedef enum {
 #ifdef USE_RANGEFINDER
     TASK_RANGEFINDER,
 #endif
+#ifdef USE_PITOT
+    TASK_PITOT,
+#endif
 #if defined(USE_BARO) || defined(USE_GPS)
     TASK_ALTITUDE,
 #endif

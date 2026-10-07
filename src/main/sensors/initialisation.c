@@ -39,6 +39,7 @@
 #include "sensors/acceleration.h"
 #include "sensors/adcinternal.h"
 #include "sensors/barometer.h"
+#include "sensors/pitot.h"
 #include "sensors/compass.h"
 #include "sensors/gyro.h"
 #include "sensors/gyro_init.h"
@@ -87,6 +88,10 @@ bool sensorsAutodetect(void)
 
 #ifdef USE_RANGEFINDER
     rangefinderInit();
+#endif
+
+#ifdef USE_PITOT
+    pitotInit();
 #endif
 
 #ifdef USE_ADC_INTERNAL

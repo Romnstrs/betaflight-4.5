@@ -89,6 +89,7 @@
 #include "sensors/acceleration.h"
 #include "sensors/adcinternal.h"
 #include "sensors/barometer.h"
+#include "sensors/pitot.h"
 #include "sensors/battery.h"
 #include "sensors/compass.h"
 #include "sensors/esc_sensor.h"
@@ -262,6 +263,20 @@ static void taskUpdateBaro(timeUs_t currentTimeUs)
 }
 #endif
 
+#ifdef USE_PITOT
+static void taskUpdatePitot(timeUs_t currentTimeUs)
+{
+    // Runs while configured, not just once SENSOR_PITOT is set: the sensor is
+    // only flagged once it delivers its first sample, which pitotUpdate detects.
+    if (pitotIsConfigured()) {
+        const uint32_t newDeadline = pitotUpdate(currentTimeUs);
+        if (newDeadline != 0) {
+            rescheduleTask(TASK_SELF, newDeadline);
+        }
+    }
+}
+#endif
+
 #ifdef USE_MAG
 static void taskUpdateMag(timeUs_t currentTimeUs)
 {
@@ -381,6 +396,10 @@ task_attribute_t task_attributes[TASK_COUNT] = {
 
 #ifdef USE_BARO
     [TASK_BARO] = DEFINE_TASK("BARO", NULL, NULL, taskUpdateBaro, TASK_PERIOD_HZ(TASK_BARO_RATE_HZ), TASK_PRIORITY_LOW),
+#endif
+
+#ifdef USE_PITOT
+    [TASK_PITOT] = DEFINE_TASK("PITOT", NULL, NULL, taskUpdatePitot, TASK_PERIOD_HZ(TASK_PITOT_RATE_HZ), TASK_PRIORITY_LOW),
 #endif
 
 #if defined(USE_BARO) || defined(USE_GPS)
@@ -536,6 +555,9 @@ void tasksInit(void)
 
 #ifdef USE_BARO
     setTaskEnabled(TASK_BARO, sensors(SENSOR_BARO));
+#endif
+#ifdef USE_PITOT
+    setTaskEnabled(TASK_PITOT, pitotIsConfigured());
 #endif
 
 #if defined(USE_BARO) || defined(USE_GPS)

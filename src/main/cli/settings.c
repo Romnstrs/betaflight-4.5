@@ -124,6 +124,7 @@
 #include "sensors/compass.h"
 #include "sensors/esc_sensor.h"
 #include "sensors/gyro.h"
+#include "sensors/pitot.h"
 #include "sensors/rangefinder.h"
 
 #include "telemetry/frsky_hub.h"
@@ -163,6 +164,12 @@ const char * const lookupTableMagHardware[] = {
 #if defined(USE_SENSOR_NAMES) || defined(USE_RANGEFINDER)
 const char * const lookupTableRangefinderHardware[] = {
     "NONE", "HCSR04", "TFMINI", "TF02"
+};
+#endif
+#if defined(USE_SENSOR_NAMES) || defined(USE_PITOT)
+// sync with pitotSensor_e
+const char * const lookupTablePitotHardware[] = {
+    "AUTO", "NONE", "MS4525"
 };
 #endif
 
@@ -589,6 +596,9 @@ const lookupTableEntry_t lookupTables[] = {
 #ifdef USE_RANGEFINDER
     LOOKUP_TABLE_ENTRY(lookupTableRangefinderHardware),
 #endif
+#ifdef USE_PITOT
+    LOOKUP_TABLE_ENTRY(lookupTablePitotHardware),
+#endif
 #ifdef USE_GYRO_OVERFLOW_CHECK
     LOOKUP_TABLE_ENTRY(lookupTableGyroOverflowCheck),
 #endif
@@ -739,6 +749,15 @@ const clivalue_t valueTable[] = {
     { "baro_i2c_device",            VAR_UINT8  | HARDWARE_VALUE, .config.minmaxUnsigned = { 0, 5 }, PG_BAROMETER_CONFIG, offsetof(barometerConfig_t, baro_i2c_device) },
     { "baro_i2c_address",           VAR_UINT8  | HARDWARE_VALUE, .config.minmaxUnsigned = { 0, I2C_ADDR7_MAX }, PG_BAROMETER_CONFIG, offsetof(barometerConfig_t, baro_i2c_address) },
     { PARAM_NAME_BARO_HARDWARE,     VAR_UINT8  | MASTER_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_BARO_HARDWARE }, PG_BAROMETER_CONFIG, offsetof(barometerConfig_t, baro_hardware) },
+#endif
+
+// PG_PITOT_CONFIG
+#ifdef USE_PITOT
+    { "pitot_bustype",              VAR_UINT8  | HARDWARE_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_BUS_TYPE }, PG_PITOT_CONFIG, offsetof(pitotConfig_t, pitot_busType) },
+    { "pitot_i2c_device",           VAR_UINT8  | HARDWARE_VALUE, .config.minmaxUnsigned = { 0, 5 }, PG_PITOT_CONFIG, offsetof(pitotConfig_t, pitot_i2c_device) },
+    { "pitot_i2c_address",          VAR_UINT8  | HARDWARE_VALUE, .config.minmaxUnsigned = { 0, I2C_ADDR7_MAX }, PG_PITOT_CONFIG, offsetof(pitotConfig_t, pitot_i2c_address) },
+    { PARAM_NAME_PITOT_HARDWARE,    VAR_UINT8  | MASTER_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_PITOT_HARDWARE }, PG_PITOT_CONFIG, offsetof(pitotConfig_t, pitot_hardware) },
+    { "pitot_use_tas",              VAR_UINT8  | MASTER_VALUE | MODE_LOOKUP, .config.lookup = { TABLE_OFF_ON }, PG_PITOT_CONFIG, offsetof(pitotConfig_t, pitot_use_tas) },
 #endif
 
 // PG_RX_CONFIG
@@ -1499,6 +1518,9 @@ const clivalue_t valueTable[] = {
     { "osd_sys_warnings_pos",       VAR_UINT16  | MASTER_VALUE, .config.minmaxUnsigned = { 0, OSD_POSCFG_MAX }, PG_OSD_ELEMENT_CONFIG, offsetof(osdElementConfig_t, item_pos[OSD_SYS_WARNINGS]) },
     { "osd_sys_vtx_temp_pos",       VAR_UINT16  | MASTER_VALUE, .config.minmaxUnsigned = { 0, OSD_POSCFG_MAX }, PG_OSD_ELEMENT_CONFIG, offsetof(osdElementConfig_t, item_pos[OSD_SYS_VTX_TEMP]) },
     { "osd_sys_fan_speed_pos",      VAR_UINT16  | MASTER_VALUE, .config.minmaxUnsigned = { 0, OSD_POSCFG_MAX }, PG_OSD_ELEMENT_CONFIG, offsetof(osdElementConfig_t, item_pos[OSD_SYS_FAN_SPEED]) },
+#ifdef USE_PITOT
+    { "osd_airspeed_pos",           VAR_UINT16  | MASTER_VALUE, .config.minmaxUnsigned = { 0, OSD_POSCFG_MAX }, PG_OSD_ELEMENT_CONFIG, offsetof(osdElementConfig_t, item_pos[OSD_AIRSPEED]) },
+#endif
 #endif
 
     // OSD stats enabled flags are stored as bitmapped values inside a 32bit parameter
