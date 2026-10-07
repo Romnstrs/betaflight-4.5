@@ -78,6 +78,8 @@ jobs:
           name: Assets-${{ strategy.job-index }}
           path: obj/*.hex
           retention-days: 60
+          # a build that produces no hex (e.g. make treating the target as up to date) must fail
+          if-no-files-found: error
 
   test:
     name: Test
